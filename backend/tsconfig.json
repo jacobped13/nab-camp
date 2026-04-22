@@ -1,0 +1,37 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "preserve",
+    "resolveJsonModule": true,
+    "allowJs": false,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "forceConsistentCasingInFileNames": true,
+    "strict": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+    "skipLibCheck": true,
+    "types": ["node"],
+    "outDir": "./dist",
+    "baseUrl": ".",
+    "paths": {
+      "@common": ["./src/common"],
+      "@lib/*": ["./src/lib/*"],
+      "@env": ["./src/env"],
+      "@api/*": ["./src/api/*"],
+      "@service/*": ["./src/service/*"],
+      "@api-contracts/*": ["../shared/api-contracts/*"],
+      "@shared-lib/*": ["../shared/lib/*"]
+    }
+  },
+  "tsc-alias": {
+    "resolveFullPaths": true
+  },
+  "include": [
+    "./src/**/*.ts",
+    "../shared/api-contracts/**/*.ts",
+    "../shared/lib/**/*.ts",
+    "./seed/**/*.ts"
+  ]
+}

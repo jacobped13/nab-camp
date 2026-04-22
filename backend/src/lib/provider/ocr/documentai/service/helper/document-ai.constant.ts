@@ -1,0 +1,10 @@
+export enum DOCUMENT_AI_PROCESSOR {
+  W2_PROCESSOR = '389cd69fbcb05e42',
+}
+
+export enum DOCUMENT_AI_LOCATION {
+  US = 'us',
+  EU = 'eu',
+}
+
+export const DEFAULT_DOCUMENT_AI_LOCATION = DOCUMENT_AI_LOCATION.US;

@@ -1,0 +1,366 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id(map: "pk_user_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  email     String   @unique(map: "uidx_user_email")
+  firstName String?
+  lastName  String?
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  defaultWorkspace UserDefaultWorkspace?
+  workspaceMembers WorkspaceMember[]
+
+  @@map("user")
+}
+
+model UserDefaultWorkspace {
+  id          String   @id(map: "pk_user_default_workspace_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  userId      String   @unique(map: "uidx_user_default_workspace_userId") @db.Uuid
+  workspaceId String   @db.Uuid
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], map: "fk_user_default_workspace_userId", onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], map: "fk_user_default_workspace_workspaceId", onDelete: Cascade)
+
+  @@map("userDefaultWorkspace")
+}
+
+model Permission {
+  id          String   @id(map: "pk_permission_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique(map: "uidx_permission_name")
+  description String
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  rolePermissions RolePermission[]
+
+  @@map("permission")
+}
+
+model Role {
+  id          String   @id(map: "pk_role_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  name        String   @unique(map: "uidx_role_name")
+  description String
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  rolePermissions          RolePermission[]
+  resourceStakeholderRoles ResourceStakeholderRole[]
+
+  @@map("role")
+}
+
+model RolePermission {
+  id             String   @id(map: "pk_role_permission_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  roleName       String
+  permissionName String
+  createdAt      DateTime @db.Timestamptz(6)
+  updatedAt      DateTime @db.Timestamptz(6)
+
+  role       Role       @relation(fields: [roleName], references: [name], map: "fk_role_permission_roleName", onDelete: Cascade)
+  permission Permission @relation(fields: [permissionName], references: [name], map: "fk_role_permission_permissionName", onDelete: Cascade)
+
+  @@unique([roleName, permissionName], map: "uidx_role_permission_roleName_permissionName")
+  @@map("rolePermission")
+}
+
+model ResourceStakeholderRole {
+  id              String   @id(map: "pk_rsr_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  stakeholderId   String
+  stakeholderType String
+  resourceId      String
+  resourceType    String
+  roleName        String
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  role Role @relation(fields: [roleName], references: [name], map: "fk_rsr_roleName", onDelete: Cascade)
+
+  @@unique([stakeholderId, stakeholderType, resourceId, resourceType, roleName], map: "uidx_rsr_stkId_stkType_resId_resType_roleName")
+  @@map("resourceStakeholderRole")
+}
+
+model Workspace {
+  id        String   @id(map: "pk_workspace_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  url       String?
+  name      String
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  members               WorkspaceMember[]
+  userDefaultWorkspaces UserDefaultWorkspace[]
+  invites               WorkspaceInvite[]
+
+  @@map("workspace")
+}
+
+model WorkspaceMember {
+  id          String   @id(map: "pk_workspace_member_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String   @db.Uuid
+  userId      String   @db.Uuid
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  user      User      @relation(fields: [userId], references: [id], map: "fk_workspace_member_userId", onDelete: Cascade)
+  workspace Workspace @relation(fields: [workspaceId], references: [id], map: "fk_workspace_member_workspaceId", onDelete: Cascade)
+
+  @@unique([workspaceId, userId], map: "uidx_workspace_member_workspaceId_userId")
+  @@map("workspaceMember")
+}
+
+model WorkspaceInvite {
+  id          String    @id(map: "pk_workspace_invite_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  workspaceId String    @db.Uuid
+  targetId    String
+  targetType  String
+  codeHash    String    @unique(map: "uidx_workspace_invite_hash")
+  acceptedAt  DateTime? @db.Timestamptz(6)
+  declinedAt  DateTime? @db.Timestamptz(6)
+  expireAt    DateTime  @db.Timestamptz(6)
+  createdAt   DateTime  @db.Timestamptz(6)
+  updatedAt   DateTime  @db.Timestamptz(6)
+
+  workspace Workspace @relation(fields: [workspaceId], references: [id], map: "fk_workspace_invite_workspaceId", onDelete: Cascade)
+
+  @@unique([workspaceId, targetId, targetType, codeHash], map: "uidx_workspace_invite_wsId_targetId_targetType_codeHash")
+  @@map("workspaceInvite")
+}
+
+model StakeholderIdentityProvider {
+  id              String   @id(map: "pk_stkIdp_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerId      String
+  stakeholderId   String
+  stakeholderType String
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  @@unique([provider, providerId], map: "uidx_stkIdp_provider_providerId")
+  @@index([stakeholderType, stakeholderId], map: "idx_stkIdp_stkId_stkType")
+  @@map("stakeholderIdentityProvider")
+}
+
+model AuthenticationCode {
+  id         String    @id(map: "pk_authentication_code_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  targetId   String
+  targetType String
+  codeHash   String
+  acceptedAt DateTime? @db.Timestamptz(6)
+  expireAt   DateTime  @db.Timestamptz(6)
+  createdAt  DateTime  @db.Timestamptz(6)
+  updatedAt  DateTime  @db.Timestamptz(6)
+
+  @@unique([targetId, targetType, codeHash], map: "uidx_authentication_code_targetId_targetType_codeHash")
+  @@map("authenticationCode")
+}
+
+model Customer {
+  id              String   @id(map: "pk_customer_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerId      String
+  providerVersion String?
+  stakeholderId   String
+  stakeholderType String
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  Subscription Subscription[]
+
+  @@unique([provider, providerId], map: "uidx_customer_provider_providerId")
+  @@unique([stakeholderType, stakeholderId], map: "uidx_customer_stkType_stkId")
+  @@map("customer")
+}
+
+model Product {
+  id              String   @id(map: "pk_product_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerId      String
+  providerVersion String?
+  status          String
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  prices       Price[]
+  planFamilies SubscriptionPlanFamily[]
+
+  @@unique([provider, providerId], map: "uidx_product_provider_providerId")
+  @@map("product")
+}
+
+model Price {
+  id              String   @id(map: "pk_price_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerId      String
+  providerVersion String?
+  productId       String   @db.Uuid
+  unitAmount      Int?
+  status          String
+  createdAt       DateTime @db.Timestamptz(6)
+  updatedAt       DateTime @db.Timestamptz(6)
+
+  subscriptionItems SubscriptionItem[]
+
+  product Product            @relation(fields: [productId], references: [id], map: "fk_price_productId", onDelete: Cascade)
+  plans   SubscriptionPlan[]
+
+  @@unique([provider, providerId], map: "uidx_price_provider_providerId")
+  @@map("price")
+}
+
+model Subscription {
+  id              String    @id(map: "pk_subscription_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider        String
+  providerId      String
+  providerVersion String?
+  status          String
+  customerId      String    @db.Uuid
+  cancelAt        DateTime? @db.Timestamptz(6)
+  createdAt       DateTime  @db.Timestamptz(6)
+  updatedAt       DateTime  @db.Timestamptz(6)
+
+  items SubscriptionItem[]
+
+  customer Customer @relation(fields: [customerId], references: [id], map: "fk_subscription_customerId", onDelete: Cascade)
+
+  @@unique([provider, providerId], map: "uidx_subscription_provider_providerId")
+  @@map("subscription")
+}
+
+model SubscriptionItem {
+  id                   String   @id(map: "pk_subscription_item_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider             String
+  providerId           String
+  providerVersion      String?
+  subscriptionId       String   @db.Uuid
+  priceId              String   @db.Uuid
+  quantity             Int
+  currentPeriodStartAt DateTime @db.Timestamptz(6)
+  currentPeriodEndAt   DateTime @db.Timestamptz(6)
+  createdAt            DateTime @db.Timestamptz(6)
+  updatedAt            DateTime @db.Timestamptz(6)
+
+  subscription Subscription @relation(fields: [subscriptionId], references: [id], map: "fk_subscription_item_subscriptionId", onDelete: Cascade)
+  price        Price        @relation(fields: [priceId], references: [id], map: "fk_subscription_item_priceId", onDelete: Cascade)
+
+  @@unique([provider, providerId], map: "uidx_subscription_item_provider_providerId")
+  @@map("subscriptionItem")
+}
+
+model BillingProviderEventLog {
+  id          String    @id(map: "pk_billing_provider_event_log_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  provider    String
+  providerId  String
+  publishedAt DateTime
+  processedAt DateTime? @db.Timestamptz(6)
+  createdAt   DateTime  @db.Timestamptz(6)
+  updatedAt   DateTime  @db.Timestamptz(6)
+
+  @@unique([provider, providerId], map: "uidx_billing_provider_event_log_provider_providerId")
+  @@map("billingProviderEventLog")
+}
+
+model SubscriptionPlanFamily {
+  id          String   @id(map: "pk_sub_plan_family_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key         String   @unique(map: "uidx_sub_plan_family_key")
+  productId   String   @db.Uuid
+  type        String
+  setupType   String
+  name        String
+  description String?
+  createdAt   DateTime @db.Timestamptz(6)
+  updatedAt   DateTime @db.Timestamptz(6)
+
+  plans      SubscriptionPlan[]
+  features   SubscriptionPlanFamilyFeature[]
+  groupItems SubscriptionPlanFamilyGroupItem[]
+
+  product Product @relation(fields: [productId], references: [id])
+
+  @@map("subscriptionPlanFamily")
+}
+
+model SubscriptionPlanFamilyFeature {
+  id        String   @id(map: "pk_sub_plan_family_feature_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  familyId  String   @db.Uuid
+  name      String
+  order     Int
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  family SubscriptionPlanFamily @relation(fields: [familyId], references: [id], map: "fk_sub_plan_family_feature_familyId", onDelete: Cascade)
+
+  @@unique([familyId, order], map: "uidx_sub_plan_family_feature_familyId_order")
+  @@map("subscriptionPlanFamilyFeature")
+}
+
+model SubscriptionPlan {
+  id        String   @id(map: "pk_sub_plan_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  priceId   String   @unique(map: "uidx_sub_plan_priceId") @db.Uuid
+  familyId  String   @db.Uuid
+  frequency String
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  family SubscriptionPlanFamily @relation(fields: [familyId], references: [id], map: "fk_sub_plan_familyId", onDelete: Cascade)
+  price  Price                  @relation(fields: [priceId], references: [id])
+
+  @@unique([familyId, frequency], map: "uidx_sub_plan_familyId_frequency")
+  @@map("subscriptionPlan")
+}
+
+model SubscriptionPlanFamilyGroup {
+  id        String   @id(map: "pk_sub_plan_family_group_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  key       String   @unique(map: "uidx_sub_plan_family_group_key")
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  items SubscriptionPlanFamilyGroupItem[]
+  paths SubscriptionPlanFamilyGroupPath[]
+
+  @@map("subscriptionPlanFamilyGroup")
+}
+
+model SubscriptionPlanFamilyGroupItem {
+  id        String   @id(map: "pk_sub_plan_family_group_item_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId   String   @db.Uuid
+  familyId  String   @unique(map: "uidx_sub_plan_family_group_item_familyId") @db.Uuid
+  order     Int
+  createdAt DateTime @db.Timestamptz(6)
+  updatedAt DateTime @db.Timestamptz(6)
+
+  fromItemPaths SubscriptionPlanFamilyGroupPath[] @relation("fromItemPath")
+  toItemPaths   SubscriptionPlanFamilyGroupPath[] @relation("toItemPath")
+
+  group  SubscriptionPlanFamilyGroup @relation(fields: [groupId], references: [id], map: "fk_sub_plan_family_group_item_groupId", onDelete: Cascade)
+  family SubscriptionPlanFamily      @relation(fields: [familyId], references: [id], map: "fk_sub_plan_family_group_item_familyId", onDelete: Cascade)
+
+  @@unique([groupId, order], map: "uidx_sub_plan_family_group_item_groupId_order")
+  @@map("subscriptionPlanFamilyGroupItem")
+}
+
+model SubscriptionPlanFamilyGroupPath {
+  id         String   @id(map: "pk_sub_plan_family_group_path_id") @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  groupId    String   @db.Uuid
+  fromItemId String   @db.Uuid
+  toItemId   String   @db.Uuid
+  path       String
+  createdAt  DateTime @db.Timestamptz(6)
+  updatedAt  DateTime @db.Timestamptz(6)
+
+  group SubscriptionPlanFamilyGroup @relation(fields: [groupId], references: [id], map: "fk_sub_plan_family_group_path_groupId", onDelete: Cascade)
+
+  fromItem SubscriptionPlanFamilyGroupItem @relation("fromItemPath", fields: [fromItemId], references: [id], map: "fk_sub_plan_family_group_path_fromItemId", onDelete: Cascade)
+  toItem   SubscriptionPlanFamilyGroupItem @relation("toItemPath", fields: [toItemId], references: [id], map: "fk_sub_plan_family_group_path_toItemId", onDelete: Cascade)
+
+  @@unique([groupId, fromItemId, toItemId], map: "uidx_sub_plan_family_group_path_groupId_fromItemId_toItemId")
+  @@map("subscriptionPlanFamilyGroupPath")
+}
