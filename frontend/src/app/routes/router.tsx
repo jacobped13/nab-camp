@@ -59,18 +59,10 @@ const Profile = lazy(() =>
     }),
   ),
 );
-const Team = lazy(() =>
-  import(
-    "@/pages/settings/workspace/team/team-page/team-page-initializer"
-  ).then((module) => ({
-    default: module.TeamPageInitializer,
-  })),
-);
-const Invites = lazy(() =>
-  import(
-    "@/pages/settings/workspace/team/invites-page/invites-page-initializer"
-  ).then((module) => ({
-    default: module.InvitesPageInitializer,
+
+const Scans = lazy(() =>
+  import("@/pages/scans/scans-page-initializer").then((module) => ({
+    default: module.ScansPageInitializer,
   })),
 );
 const Billing = lazy(() =>
@@ -140,21 +132,7 @@ const NotFoundPage = lazy(() =>
     default: module.NotFoundPage,
   })),
 );
-const DocumentPage = lazy(() =>
-  import("@/pages/documents/document-page-initializer").then((module) => ({
-    default: module.DocumentPageInitializer,
-  })),
-);
-const DocumentUploadPage = lazy(() =>
-  import("@/pages/documents/upload/upload-page-initializer").then((module) => ({
-    default: module.DocumentUploadPageInitializer,
-  })),
-);
-const DocumentReviewPage = lazy(() =>
-  import("@/pages/documents/review/review-page-initializer").then((module) => ({
-    default: module.DocumentReviewPageInitializer,
-  })),
-);
+
 
 // Suspenses
 const fullPageSuspense = (Component: React.JSX.Element) => (
@@ -181,17 +159,10 @@ export const router = createBrowserRouter([
             element: pageSuspense(<Home />),
           },
           {
-            path: Routes.Documents,
-            element: pageSuspense(<DocumentPage />),
+            path: Routes.Scans,
+            element: pageSuspense(<Scans />),
           },
-          {
-            path: Routes.DocumentUpload,
-            element: pageSuspense(<DocumentUploadPage />),
-          },
-          {
-            path: `${Routes.DocumentReview}/:id`,
-            element: pageSuspense(<DocumentReviewPage />),
-          },
+
           {
             path: `${Routes.Home}/*`,
             element: pageSuspense(<NotFoundPage />),
@@ -210,14 +181,7 @@ export const router = createBrowserRouter([
             path: Routes.UserPreferences,
             element: pageSuspense(<Preferences />),
           },
-          {
-            path: Routes.WorkspaceTeam,
-            element: pageSuspense(<Team />),
-          },
-          {
-            path: Routes.WorkspaceInvites,
-            element: pageSuspense(<Invites />),
-          },
+
           {
             path: Routes.WorkspaceBilling,
             element: pageSuspense(<Billing />),

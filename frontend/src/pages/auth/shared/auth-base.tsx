@@ -38,8 +38,10 @@ export const AuthBase = ({ context }: AuthProps) => {
     <>
       <PageMetaTitle title={title} />
       <div className="grid gap-6">
-        <CompanyLogo className="h-8" />
-        <span className="text-2xl font-thin tracking-tight py-4">{title}</span>
+        <div className="flex flex-col items-center gap-2">
+          <CompanyLogo className="w-24" />
+          <span className="text-2xl tracking-tight py-4">{title}</span>
+        </div>
         <GoogleAuth />
         <hr className="my-4" />
         <SendCode />

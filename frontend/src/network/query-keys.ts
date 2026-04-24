@@ -5,7 +5,4 @@ export const QUERY_KEYS = {
   UPGRADE_DOWNGRADE_PLANS: ["upgrade-downgrade-plans"],
   INVITED_WOKSPACE: ["invited-workspace"],
   INVOICES: ["invoices"],
-  DOCUMENTS: ["documents"],
-  WORKSPACE_MEMBERS: ["workspace-members"],
-  WORKSPACE_INVITES: ["workspace-invites"],
 };

@@ -1,7 +1,7 @@
 import {
   ArrowRightIcon,
-  FileIcon,
-  HomeIcon,
+  Compass,
+  Radar,
   Settings2Icon,
 } from "lucide-react";
 import { useCallback } from "react";
@@ -18,15 +18,15 @@ import {
 
 const NAV_ITEMS = [
   {
-    title: "Home",
+    title: "Explore",
     url: Routes.Home,
-    icon: HomeIcon,
+    icon: Compass,
     rightIcon: null,
   },
   {
-    title: "Documents",
-    url: Routes.Documents,
-    icon: FileIcon,
+    title: "Scans",
+    url: Routes.Scans,
+    icon: Radar,
     rightIcon: null,
   },
   {

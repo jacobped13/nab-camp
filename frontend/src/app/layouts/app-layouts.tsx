@@ -37,14 +37,12 @@ interface RootLayoutProps {
 const NavigationOutlet = ({
   type,
   tabsDisabled = false,
-  showCreateWorkspace = false,
 }: NavigationConfig) => {
   switch (type) {
     case NavigationType.App: {
       return (
         <AppNavigation
           tabsDisabled={tabsDisabled}
-          showCreateWorkspace={showCreateWorkspace}
         />
       );
     }
@@ -98,7 +96,6 @@ export const AppLayout = () => {
       <RootLayout
         navigationConfig={{
           type: NavigationType.App,
-          showCreateWorkspace: true,
           tabsDisabled: false,
           openByDefault: true,
         }}
@@ -136,7 +133,6 @@ export const InactiveLayout = () => {
       <RootLayout
         navigationConfig={{
           type: NavigationType.App,
-          showCreateWorkspace: false,
           tabsDisabled: true,
           openByDefault: false,
         }}
@@ -155,7 +151,6 @@ export const RegistrationLayout = () => {
       <RootLayout
         navigationConfig={{
           type: NavigationType.App,
-          showCreateWorkspace: false,
           tabsDisabled: true,
           openByDefault: false,
         }}
@@ -174,7 +169,6 @@ export const AuthLayout = () => {
       <RootLayout
         navigationConfig={{
           type: NavigationType.None,
-          showCreateWorkspace: false,
           tabsDisabled: false,
           openByDefault: false,
         }}
@@ -193,7 +187,7 @@ export const SettingsLayout = () => {
       <RootLayout
         navigationConfig={{
           type: NavigationType.Settings,
-          showCreateWorkspace: true,
+          showCreateWorkspace: false,
           tabsDisabled: false,
           openByDefault: true,
         }}

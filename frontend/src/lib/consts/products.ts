@@ -1,1 +1,1 @@
-export const PRODUCT_NAME = "Automatax";
+export const PRODUCT_NAME = "Camp Alert";

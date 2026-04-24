@@ -23,7 +23,6 @@ export const SettingsNavigation = () => {
     navigation: {
       workspaceDetailsNavigation,
       billingNavigation,
-      teamsNavigation,
     },
   } = useAuthorization();
 
@@ -53,11 +52,7 @@ export const SettingsNavigation = () => {
               to: Routes.WorkspaceDetails,
               show: workspaceDetailsNavigation.allowed,
             },
-            {
-              title: "Team",
-              to: Routes.WorkspaceTeam,
-              show: teamsNavigation.allowed,
-            },
+
             {
               title: "Billing",
               to: Routes.WorkspaceBilling,
@@ -67,7 +62,7 @@ export const SettingsNavigation = () => {
         },
       ],
     };
-  }, [workspaceDetailsNavigation, billingNavigation, teamsNavigation]);
+  }, [workspaceDetailsNavigation, billingNavigation]);
 
   return (
     <Sidebar collapsible="offcanvas" variant="inset">

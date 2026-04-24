@@ -80,8 +80,6 @@ export const useNavigationAuthorization = () => {
   const {
     permissions: {
       WORKSPACE_VIEW,
-      WORKSPACE_MEMBER_VIEW,
-      WORKSPACE_EMAIL_INVITE_VIEW,
       WORKSPACE_BILLING_MANAGE,
       WORKSPACE_INVOICE_VIEW,
     },
@@ -94,12 +92,7 @@ export const useNavigationAuthorization = () => {
         logic: ConditionalOptions.AND,
       },
     }),
-    teamsNavigation: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_VIEW, WORKSPACE_EMAIL_INVITE_VIEW],
-        logic: ConditionalOptions.OR,
-      },
-    }),
+
     billingNavigation: checkAuthorization({
       permissions: {
         values: [WORKSPACE_BILLING_MANAGE, WORKSPACE_INVOICE_VIEW],
@@ -114,8 +107,6 @@ export const useRoutesAuthorization = () => {
     permissions: {
       WORKSPACE_BILLING_MANAGE,
       WORKSPACE_INVOICE_VIEW,
-      WORKSPACE_MEMBER_VIEW,
-      WORKSPACE_EMAIL_INVITE_VIEW,
       WORKSPACE_VIEW,
     },
   } = useAccount();
@@ -133,18 +124,7 @@ export const useRoutesAuthorization = () => {
         logic: ConditionalOptions.AND,
       },
     }),
-    teamsRoute: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_VIEW],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    invitesRoute: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_EMAIL_INVITE_VIEW],
-        logic: ConditionalOptions.AND,
-      },
-    }),
+
     workspaceDetailsRoute: checkAuthorization({
       permissions: {
         values: [WORKSPACE_VIEW],
@@ -175,73 +155,6 @@ export const useWorkspaceAuthorization = () => {
   };
 };
 
-export const useMembersAuthorization = () => {
-  const {
-    permissions: {
-      WORKSPACE_MEMBER_VIEW,
-      WORKSPACE_MEMBER_DELETE,
-      WORKSPACE_MEMBER_ROLE_CHANGE,
-    },
-  } = useAccount();
-
-  return {
-    viewMembers: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_VIEW],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    deleteMembers: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_DELETE],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    changeMemberRole: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_ROLE_CHANGE],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    hasAnyMemberAction: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_MEMBER_DELETE, WORKSPACE_MEMBER_ROLE_CHANGE],
-        logic: ConditionalOptions.OR,
-      },
-    }),
-  };
-};
-
-export const useInvitesAuthorization = () => {
-  const {
-    permissions: {
-      WORKSPACE_EMAIL_INVITE_VIEW,
-      WORKSPACE_EMAIL_INVITE_CREATE,
-      WORKSPACE_EMAIL_INVITE_DELETE,
-    },
-  } = useAccount();
-
-  return {
-    viewInvites: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_EMAIL_INVITE_VIEW],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    createInvites: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_EMAIL_INVITE_CREATE],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-    deleteInvites: checkAuthorization({
-      permissions: {
-        values: [WORKSPACE_EMAIL_INVITE_DELETE],
-        logic: ConditionalOptions.AND,
-      },
-    }),
-  };
-};
 
 export const useBillingAuthorization = () => {
   const {
@@ -268,8 +181,7 @@ type UseAuthorizationBody = {
   navigation: ReturnType<typeof useNavigationAuthorization>;
   routes: ReturnType<typeof useRoutesAuthorization>;
   workspaceFeatures: ReturnType<typeof useWorkspaceAuthorization>;
-  membersFeatures: ReturnType<typeof useMembersAuthorization>;
-  invitesFeatures: ReturnType<typeof useInvitesAuthorization>;
+
   billingFeatures: ReturnType<typeof useBillingAuthorization>;
 };
 
@@ -277,16 +189,14 @@ export const useAuthorization = () => {
   const navigation = useNavigationAuthorization();
   const routes = useRoutesAuthorization();
   const workspaceFeatures = useWorkspaceAuthorization();
-  const membersFeatures = useMembersAuthorization();
-  const invitesFeatures = useInvitesAuthorization();
+
   const billingFeatures = useBillingAuthorization();
 
   return {
     navigation,
     routes,
     workspaceFeatures,
-    membersFeatures,
-    invitesFeatures,
+
     billingFeatures,
   } satisfies UseAuthorizationBody;
 };
